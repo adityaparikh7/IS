@@ -1,3 +1,5 @@
+# rail fence transposition cipher
+
 def encrypt_rail_fence(text, key):
     fence = [[' ' for _ in range(len(text))] for _ in range(key)]
 
@@ -60,10 +62,10 @@ def decrypt_rail_fence(ciphertext, key):
 
 
 plaintext = input("Enter the plaintext: ")
-key = int(input("Enter the key: "))
+rails = int(input("Enter the number of rails: "))
 
-encrypted_text = encrypt_rail_fence(plaintext, key)
+encrypted_text = encrypt_rail_fence(plaintext, rails)
 print("Encrypted:", encrypted_text)
 
-decrypted_text = decrypt_rail_fence(encrypted_text, key)
+decrypted_text = decrypt_rail_fence(encrypted_text, rails)
 print("Decrypted:", decrypted_text)
