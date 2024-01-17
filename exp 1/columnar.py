@@ -1,102 +1,57 @@
 # columnar transposition cipher 
+import math
 
-# def encrypt(plaintext, key):
-#     key = list(key)
-#     key_order = sorted(key)
-#     ciphertext = ""
-#     for i in range(len(key)):
-#         index = key.index(key_order[i])
-#         for j in range(index, len(plaintext), len(key)):
-#             ciphertext += plaintext[j]
-#     return ciphertext
-
-# def decrypt(ciphertext, key):
-#     key = list(key)
-#     key_order = sorted(key)
-#     plaintext = ""
-#     for i in range(len(ciphertext)):
-#         index = key_order.index(key[i])
-#         for j in range(index, len(ciphertext), len(key)):
-#             plaintext += ciphertext[j]
-#     return plaintext
+def encrypt_message(msg, key):
+    cipher = ""
+    k_indx = 0
+    msg_len = float(len(msg))
+    msg_lst = list(msg)
+    key_lst = sorted(list(key))
+    col = len(key)
+    row = int(math.ceil(msg_len / col))
+    fill_null = int((row * col) - msg_len)
+    msg_lst.extend('_' * fill_null)
+    matrix = [msg_lst[i: i + col] for i in range(0, len(msg_lst), col)]
+    for _ in range(col):
+        curr_idx = key.index(key_lst[k_indx])
+        cipher += ''.join([row[curr_idx] for row in matrix])
+        k_indx += 1
+    return cipher
 
 
-# plaintext = input("Enter plaintext: ")
-# key = input("Enter key: ")
-# ciphertext = encrypt(plaintext, key)
-# print(ciphertext)
-# plaintext = decrypt(ciphertext, key)
-# print(plaintext)
+def decrypt_message(cipher, key):
+    msg = ""
+    k_indx = 0
+    msg_indx = 0
+    msg_len = float(len(cipher))
+    msg_lst = list(cipher)
+    col = len(key)
+    row = int(math.ceil(msg_len / col))
+    key_lst = sorted(list(key))
+    dec_cipher = []
+    for _ in range(row):
+        dec_cipher += [[None] * col]
+    for _ in range(col):
+        curr_idx = key.index(key_lst[k_indx])
+        for j in range(row):
+            dec_cipher[j][curr_idx] = msg_lst[msg_indx]
+            msg_indx += 1
+        k_indx += 1
+    try:
+        msg = ''.join(sum(dec_cipher, []))
+    except TypeError:
+        raise TypeError("This program cannot", "handle repeating words.")
+    null_count = msg.count('_')
+    if null_count > 0:
+        return msg[: -null_count]
+    return msg
 
 
-def encrypt(message, key):
-    # Remove spaces and convert the message to uppercase
-    message = ''.join(message.split()).upper()
-
-    # Calculate the number of columns based on the length of the key
-    num_columns = len(key)
-
-    # Calculate the number of rows required
-    # Equivalent to math.ceil(len(message) / num_columns)
-    num_rows = -(-len(message) // num_columns)
-
-    # Create an empty grid to store the message
-    grid = [[' ' for _ in range(num_columns)] for _ in range(num_rows)]
-
-    # Fill the grid with the characters of the message
-    index = 0
-    for col in key:
-        col_index = key.index(col)
-        for row in range(num_rows):
-            if index < len(message):
-                grid[row][col_index] = message[index]
-                index += 1
-
-    # Read out the grid column by column to get the encrypted message
-    encrypted_message = ''
-    for row in range(num_rows):
-        for col in range(num_columns):
-            encrypted_message += grid[row][col]
-
-    return encrypted_message
-
-
-def decrypt(encrypted_message, key):
-    # Calculate the number of columns based on the length of the key
-    num_columns = len(key)
-
-    # Calculate the number of rows required
-    # Equivalent to math.ceil(len(encrypted_message) / num_columns)
-    num_rows = -(-len(encrypted_message) // num_columns)
-
-    # Create an empty grid to store the encrypted message
-    grid = [[' ' for _ in range(num_columns)] for _ in range(num_rows)]
-
-    # Fill the grid with the characters of the encrypted message
-    index = 0
-    for col in key:
-        col_index = key.index(col)
-        for row in range(num_rows):
-            grid[row][col_index] = encrypted_message[index]
-            index += 1
-
-    # Read out the grid row by row to get the decrypted message
-    decrypted_message = ''
-    for row in range(num_rows):
-        for col in range(num_columns):
-            decrypted_message += grid[row][col]
-
-    return decrypted_message
-
-
-# Get user input for message and key
-message = input("Enter the message: ")
+msg = input("Enter the message: ")
 key = input("Enter the key: ")
 
-# Encrypt the message
-encrypted_message = encrypt(message, key)
-print("Encrypted:", encrypted_message)
+cipher = encrypt_message(msg, key)
+print("Encrypted Message: {}".format(cipher))
 
-# Decrypt the message
-decrypted_message = decrypt(encrypted_message, key)
-print("Decrypted:", decrypted_message)
+decrypted_msg = decrypt_message(cipher, key)
+print("Decrypted Message: {}".format(decrypted_msg))
