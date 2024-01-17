@@ -1,131 +1,95 @@
-# Implement Playfair cipher as a substitution cipher: Encryption and decryption both without using a key
+def matrix(x, y, initial):
+    return [[initial for _ in range(x)] for _ in range(y)]
 
-import string
 
-def encrypt(plain_text):
-    # Remove all spaces and convert to uppercase
-    plain_text = plain_text.replace(" ", "").upper()
-    # Remove all non-alphabetic characters
-    plain_text = ''.join(filter(str.isalpha, plain_text))
-    # Replace all J with I
-    plain_text = plain_text.replace("J", "I")
+def create_matrix():
+    key = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    key_set = set(key)
+    result = []
 
-    # Initialize the matrix with a size of 5x5
-    matrix = [['' for _ in range(5)] for _ in range(5)]
+    for c in key:
+        if c not in result:
+            result.append(c)
 
-    # Fill the matrix with the plain text
-    i = 0
-    j = 0
-    for c in plain_text:
-        matrix[i][j] = c
-        j += 1
-        if j == 5:
-            j = 0
-            i += 1
+    for i in range(65, 91):
+        if chr(i) not in result:
+            if i == 73 and chr(74) not in result:
+                result.append("I")
+            elif i != 74:
+                result.append(chr(i))
 
-    # Check if the matrix is full
-    if i == 5:
-        return matrix
-
-    # Fill the remaining cells with the remaining alphabets
-    alphabets = list(string.ascii_uppercase)
-    alphabets.remove("J")
-    alphabets = ''.join(alphabets)
-    for c in alphabets:
-        if i < 5 and j < 5:  # Ensure we don't go beyond the matrix size
-            matrix[i][j] = c
-            j += 1
-            if j == 5:
-                j = 0
-                i += 1
-
-    # return matrix
-
-    # Get the cipher text
-    cipher_text = ""
-    for i in range(0, len(plain_text), 2):
-        c1 = plain_text[i]
-        c2 = plain_text[i+1]
-        r1 = 0
-        c1 = 0
-        r2 = 0
-        c2 = 0
-        for r in range(5):
-            for c in range(5):
-                if matrix[r][c] == c1:
-                    r1 = r
-                    c1 = c
-                if matrix[r][c] == c2:
-                    r2 = r
-                    c2 = c
-        if r1 == r2:
-            cipher_text += matrix[r1][(c1+1)%5]
-            cipher_text += matrix[r2][(c2+1)%5]
-        elif c1 == c2:
-            cipher_text += matrix[(r1+1)%5][c1]
-            cipher_text += matrix[(r2+1)%5][c2]
-        else:
-            cipher_text += matrix[r1][c2]
-            cipher_text += matrix[r2][c1]
-
-    return cipher_text
-
-def decrypt(cipher_text):
-    # Remove all spaces and convert to uppercase
-    cipher_text = cipher_text.replace(" ", "").upper()
-    # Remove all non-alphabetic characters
-    cipher_text = ''.join(filter(str.isalpha, cipher_text))
-    # Replace all J with I
-    cipher_text = cipher_text.replace("J", "I")
-
-    # Create a 5x5 matrix
-    matrix = []
+    k = 0
+    my_matrix = matrix(5, 5, 0)
     for i in range(5):
-        matrix.append([0] * 5)
+        for j in range(5):
+            my_matrix[i][j] = result[k]
+            k += 1
+    return my_matrix
 
-    # Fill the matrix with the cipher text
+
+def locindex(matrix, c):
+    loc = []
+    if c == 'J':
+        c = 'I'
+    for i, row in enumerate(matrix):
+        for j, char in enumerate(row):
+            if c == char:
+                loc.extend([i, j])
+                return loc
+
+
+def playfair_encrypt(my_matrix, msg):
+    msg = msg.upper().replace("J", "I").replace(" ", "")
     i = 0
-    j = 0
-    for c in cipher_text:
-        matrix[i][j] = c
-        j += 1
-        if j == 5:
-            j = 0
-            i += 1
-
-    # Get the plain text
-    plain_text = ""
-    for i in range(0, len(cipher_text), 2):
-        c1 = cipher_text[i]
-        c2 = cipher_text[i+1]
-        r1 = 0
-        c1 = 0
-        r2 = 0
-        c2 = 0
-        for r in range(5):
-            for c in range(5):
-                if matrix[r][c] == c1:
-                    r1 = r
-                    c1 = c
-                if matrix[r][c] == c2:
-                    r2 = r
-                    c2 = c
-        if r1 == r2:
-            plain_text += matrix[r1][(c1-1)%5]
-            plain_text += matrix[r2][(c2-1)%5]
-        elif c1 == c2:
-            plain_text += matrix[(r1-1)%5][c1]
-            plain_text += matrix[(r2-1)%5][c2]
+    for s in range(0, len(msg) + 1, 2):
+        if s < len(msg) - 1:
+            if msg[s] == msg[s + 1]:
+                msg = msg[:s + 1] + 'X' + msg[s + 1:]
+    if len(msg) % 2 != 0:
+        msg = msg[:] + 'X'
+    ciphertext = ""
+    while i < len(msg):
+        loc = locindex(my_matrix, msg[i])
+        loc1 = locindex(my_matrix, msg[i + 1])
+        if loc[1] == loc1[1]:
+            ciphertext += "{}{}".format(my_matrix[(loc[0] + 1) %
+                                        5][loc[1]], my_matrix[(loc1[0] + 1) % 5][loc1[1]])
+        elif loc[0] == loc1[0]:
+            ciphertext += "{}{}".format(
+                my_matrix[loc[0]][(loc[1] + 1) % 5], my_matrix[loc1[0]][(loc1[1] + 1) % 5])
         else:
-            plain_text += matrix[r1][c2]
-            plain_text += matrix[r2][c1]
+            ciphertext += "{}{}".format(my_matrix[loc[0]]
+                                        [loc1[1]], my_matrix[loc1[0]][loc[1]])
+        i = i + 2
+    return ciphertext
 
-    return plain_text
+
+def playfair_decrypt(my_matrix, msg):
+    msg = msg.upper().replace("J", "I").replace(" ", "")
+    plaintext = ""
+    i = 0
+    while i < len(msg):
+        loc = locindex(my_matrix, msg[i])
+        loc1 = locindex(my_matrix, msg[i + 1])
+        if loc[1] == loc1[1]:
+            plaintext += "{}{}".format(my_matrix[(loc[0] - 1) %
+                                       5][loc[1]], my_matrix[(loc1[0] - 1) % 5][loc1[1]])
+        elif loc[0] == loc1[0]:
+            plaintext += "{}{}".format(my_matrix[loc[0]][(loc[1] - 1) %
+                                       5], my_matrix[loc1[0]][(loc1[1] - 1) % 5])
+        else:
+            plaintext += "{}{}".format(my_matrix[loc[0]]
+                                       [loc1[1]], my_matrix[loc1[0]][loc[1]])
+        i = i + 2
+    return plaintext
 
 
 if __name__ == "__main__":
-    plain_text = input("Enter plain text: ")
-    cipher_text = encrypt(plain_text)
-    print("Cipher text:", cipher_text)
-    plain_text = decrypt(cipher_text)
-    print("Plain text:", plain_text)
+    my_matrix = create_matrix()
+
+    plaintext = input("Enter the plaintext: ")
+    ciphertext = playfair_encrypt(my_matrix, plaintext)
+    print(f"Ciphertext: {ciphertext}")
+
+    decrypted_text = playfair_decrypt(my_matrix, ciphertext)
+    print(f"Decrypted text: {decrypted_text}")
