@@ -5,13 +5,8 @@ import string
 
 def generate_captcha():
     # Generate a random string for the CAPTCHA
-    captcha_text = ''.join(random.choices(
-        string.ascii_uppercase + string.digits, k=6))
-
-    # Set the width and height of the image
+    captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     width, height = 500, 100
-
-    # Create a new image with a white background
     image = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(image)
 
@@ -29,11 +24,7 @@ def generate_captcha():
         x = random.randint(0, width - 1)
         y = random.randint(0, height - 1)
         draw.point((x, y), fill='black')
-
-    # Save or display the image
     image.show()
-    # image.save('captcha.png')
-
 
 if __name__ == "__main__":
     generate_captcha()
