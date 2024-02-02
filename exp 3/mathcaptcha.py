@@ -1,8 +1,7 @@
 import random
 
-
 def generate_math():
-    operators = ['+', '-', '*', '/']
+    operators = ['+', '-', '*']
     num1 = random.randint(1, 10)
     num2 = random.randint(1, 10)
     operator = random.choice(operators)
@@ -12,7 +11,6 @@ def generate_math():
 
 def validate_captcha(answer, result_actual):
     return answer == result_actual
-
 
 def main():
     math = generate_math()
