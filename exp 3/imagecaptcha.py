@@ -21,9 +21,14 @@ def generate_captcha():
 
     # Add some noise (random pixels) to the image
     for _ in range(100):
-        x = random.randint(0, width - 1)
-        y = random.randint(0, height - 1)
+        x = random.randint(0, width - 15)
+        y = random.randint(0, height - 15)
         draw.point((x, y), fill='black')
+    for _ in range(5):
+        start = (random.randint(0, width), random.randint(0, height))
+        end = (random.randint(0, width), random.randint(0, height))
+        draw.line([start, end], fill='black')
+
     image.show()
 
 if __name__ == "__main__":
