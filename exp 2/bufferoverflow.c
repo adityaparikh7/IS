@@ -21,8 +21,8 @@
 
 int main(void)
 {
-    char *ptr = (char *)malloc(11 * sizeof(char));  // +1 for null terminator
-    char *dptr = (char *)malloc(11 * sizeof(char)); // +1 for null terminator
+    char *ptr = (char *)malloc(11 * sizeof(char));  
+    char *dptr = (char *)malloc(11 * sizeof(char)); 
 
     if (ptr == NULL || dptr == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
