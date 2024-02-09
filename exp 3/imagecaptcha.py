@@ -1,35 +1,35 @@
-from PIL import Image, ImageDraw, ImageFont
 import random
 import string
+from PIL import Image, ImageDraw, ImageFont
 
 
-def generate_captcha():
-    # Generate a random string for the CAPTCHA
+def generate_image_captcha():
     captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     width, height = 500, 100
     image = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(image)
 
-    # Choose a font (you may need to adjust the path based on your system)
     font = ImageFont.truetype("arial.ttf", 40)
 
-    # Randomly rotate the characters for additional complexity
+    #printing text on image
     for i in range(len(captcha_text)):
-        rotation = random.randint(-30, 30)
-        draw.text((i * (width // len(captcha_text)) + 10, 10),
-                  captcha_text[i], font=font, fill='black', angle=rotation)
+        x = i * (width // len(captcha_text)) + 10
+        y = 10
+        draw.text((x, y), captcha_text[i], font=font, fill='black')
 
-    # Add some noise (random pixels) to the image
+    # adding noise to the image  
     for _ in range(100):
         x = random.randint(0, width - 15)
         y = random.randint(0, height - 15)
         draw.point((x, y), fill='black')
     for _ in range(5):
-        start = (random.randint(0, width), random.randint(0, height))
-        end = (random.randint(0, width), random.randint(0, height))
-        draw.line([start, end], fill='black')
+        x1 = random.randint(0, width)
+        y1 = random.randint(0, height)
+        x2 = random.randint(0, width)
+        y2 = random.randint(0, height)
+        draw.line([(x1, y1), (x2, y2)], fill='black', width=2)
 
     image.show()
 
 if __name__ == "__main__":
-    generate_captcha()
+    generate_image_captcha()
